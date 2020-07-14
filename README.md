@@ -1,30 +1,12 @@
 # ESP8266_LittleFSFileHandler
 A very Little Libary to create and use JSON Config(s)
 
-Ver. Beta - 0.1
+Ver. Beta - 0.2
 
-This Libary is in general for one of my Projects -
+This Libary is an Upgrade for B0.1 - both versions are compatible to each other but this Libary uses the "original" LittleFS libary not the Class out of Arduino Core (can be found here: https://github.com/ARMmbed/littlefs) - this is part of Arduino to b
 
 Req. 
   - ArduinoJSON (tested with: version 6.15.2)
   - LittleFS (part of Arduino Core)
   
- What does it do:
-  - create JSON Config
-  - readout JSON Config (complete or per Value)
-  - del Files
-  - read Files
-  - write Files
-  - extra:
-    - show Free Space (in Bytes or percent)
-    - get Filesystem Info (only fs_info from LittleFS)
-    
- of course this is not a big Libary, but it saves a bit of work ^^ 
- 
- Please report Bugs, Failes and if you want needed not implemented Features
- 
- How to Use:
- 
- Read comments in "filemanager.h" - i think it's very simple to use this Lib ^^
- 
- 
+ Useable like POSIX or Unix Commandline (e.g move, mkdir, etc.) - more soon...
