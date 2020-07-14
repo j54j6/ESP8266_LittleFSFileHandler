@@ -21,10 +21,12 @@ Req.
     
  of course this is not a big Libary, but it saves a bit of work ^^ 
  
- Please report Bugs, Failes and if you want needed not implemented Features
  
  How to Use:
  
  Read comments in "filemanager.h" - i think it's very simple to use this Lib ^^
  
- 
+ Bucket List:
+  - Filesystem configurator (for e.g multiple Partitions (keyword OTA))
+  - internal Cache for often used files
+  - u tell me^^
