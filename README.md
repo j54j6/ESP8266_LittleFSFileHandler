@@ -30,3 +30,7 @@ Req.
   - Filesystem configurator (for e.g multiple Partitions (keyword OTA))
   - internal Cache for often used files
   - u tell me^^
+  
+  
+  Known Bugs:
+    - #001: Filemanager can't read different Files at same time (sim. multi-threadding)
