@@ -19,3 +19,8 @@ Req.
 
 Most functionalities i describe as comment in filemanager.h - and most of the functions are self-explaining
 If you need some help or want to give some feedback - open Issue or visit me on TS -> ts.microcont.de
+
+
+
+This Filehandler uses:
+  - ArduinoJson by Benoit BLANCHON © 2014-2020 
