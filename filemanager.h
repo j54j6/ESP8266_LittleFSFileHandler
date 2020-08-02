@@ -94,16 +94,16 @@
                  Special functionalities
              */
             bool createFile(const char* Filename);
-            bool writeInFile(const char* Filename, const char* pattern, const char* writeMode);
-            bool writeJsonFile(const char* Filename,  const char* jsonPattern[][2], int amountOfData, const char* writeMode);
-            bool writeJsonFile(const char* Filename, DynamicJsonDocument jsonFile, const char* writeMode);
+            bool writeInFile(const char* Filename, const char* pattern, const char* writeMode = "w");
+            bool writeJsonFile(const char* Filename,  const char* jsonPattern[][2], int amountOfData, const char* writeMode ="w");
+            bool writeJsonFile(const char* Filename, DynamicJsonDocument jsonFile, const char* writeMode = "w");
             bool changeJsonValueFile(const char* Filename, const char* key, const char* newValue);
             String readFile(const char* Filename);
             const char* readJsonFileValue(const char* Filename, const char* pattern);
             DynamicJsonDocument readJsonFile(const char* Filename);
             float getFreeSpace(short mode);
             void getSerialFileStructure(const char* path = "/");
+            bool returnAsBool(const char* val);
 
     };
-    Filemanager FM;
 #endif

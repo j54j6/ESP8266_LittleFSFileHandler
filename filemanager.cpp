@@ -85,7 +85,7 @@ bool Filemanager::begin()
         if(LittleFS.begin())
         {
             #ifdef J54J6_LOGGING_H //use logging Libary if included
-                logger::SFLog(className, "begin", "Try to mount Filesystem");
+                logger::SFLog(className, "begin", "Filesystem mounted");
             #endif
             this->init = true;
             return true;
@@ -649,7 +649,7 @@ bool Filemanager::fExist(const char* path)
     #ifdef J54J6_LOGGING_H //use logging Libary if included
             String message = "File ";
             message += path;
-            message += "exists?: ";
+            message += " exists?: ";
             message += res;
             logger::SFLog(className, "fExist", message.c_str(), 0);
     #endif
@@ -1175,7 +1175,7 @@ bool Filemanager::changeJsonValueFile(const char* Filename, const char* key, con
     if(!checkForInit())
     {
         #ifdef J54J6_LOGGING_H //use logging Libary if included
-            logger::SFLog(className, "getCreationTime", "Error Init. Check!", 2);
+            logger::SFLog(className, "changeJsonValueFile", "Error Init. Check!", 2);
         #endif
         return false;
     }
@@ -1184,13 +1184,24 @@ bool Filemanager::changeJsonValueFile(const char* Filename, const char* key, con
     bool val1 = writeJsonFile(Filename, jsonFile, "w");
     if(!val1)
     {
+        #ifdef J54J6_LOGGING_H //use logging Libary if included
+            logger::SFLog(className, "changeJsonValueFile", "Can't write in JSON File", 2);
+        #endif
         return false;
     }
+
     jsonFile = readJsonFile(Filename);
     if(newValue == jsonFile[key])
     {
         return true;
     }
+    #ifdef J54J6_LOGGING_H //use logging Libary if included
+        String message = "Strings does not match: Key: ";
+        message += key;
+        message += " returned from File: ";
+        message += String(jsonFile[key].as<String>());
+        logger::SFLog(className, "changeJsonValueFile", message.c_str(), 2);
+    #endif
     return false;
 
 }
@@ -1223,7 +1234,7 @@ const char* Filemanager::readJsonFileValue(const char* Filename, const char* pat
     if(!checkForInit())
     {
         #ifdef J54J6_LOGGING_H //use logging Libary if included
-            logger::SFLog(className, "getCreationTime", "Error Init. Check!", 2);
+            logger::SFLog(className, "readJsonFileValue", "Error Init. Check!", 2);
         #endif
         return {};
     }
@@ -1231,28 +1242,42 @@ const char* Filemanager::readJsonFileValue(const char* Filename, const char* pat
     DynamicJsonDocument jsonDocument(capacity);
     if(!LittleFS.exists(Filename))
     {
-        
+        #ifdef J54J6_LOGGING_H //use logging Libary if included
+            logger::SFLog(className, "readJsonFileValue", "File doesn't exist!", 2);
+        #endif
         return {};
     }
 
-    File readFile = LittleFS.open(Filename, "r"); //Open File
+    File readFile = LittleFS.open(Filename,"r"); //Open File
 
     if(!readFile)
     { 
+        #ifdef J54J6_LOGGING_H //use logging Libary if included
+            logger::SFLog(className, "readJsonFileValue", "File can't be opened!", 2);
+        #endif
         return {};
     }
-
+   
     String output = readFile.readString();
     readFile.close();
 
     DeserializationError error = deserializeJson(jsonDocument, output);
     if(error)
     {
-      Serial.print("Filemanager: ERROR -> ");
-      Serial.println(error.c_str());
+       #ifdef J54J6_LOGGING_H //use logging Libary if included
+            String message = "LittleFS ERROR!";
+            message += "\n Error: \n";
+            message += error.c_str();
+            logger::SFLog(className, "readJsonFileValue", message.c_str(), 2);
+        #endif
         return {};
     }
     const char* returnVal = jsonDocument[pattern]; //pattern need quotes too! e.g pattern = "\"id\""
+    #ifdef J54J6_LOGGING_H //use logging Libary if included
+            String message = "Output String: ";
+            message += returnVal;
+            logger::SFLog(className, "readJsonFileValue", message.c_str());
+        #endif
     return returnVal;
 }
 
@@ -1263,7 +1288,7 @@ DynamicJsonDocument Filemanager::readJsonFile(const char* Filename)
     if(!checkForInit())
     {
         #ifdef J54J6_LOGGING_H //use logging Libary if included
-            logger::SFLog(className, "getCreationTime", "Error Init. Check!", 2);
+            logger::SFLog(className, "readJsonFile", "Error Init. Check!", 2);
         #endif
         return jsonDocument;
     }
@@ -1411,4 +1436,39 @@ bool Filemanager::createFile(const char* Filename)
     newFile.close();
 
     return LittleFS.exists(Filename);
+}
+
+bool Filemanager::returnAsBool(const char* val)
+{
+    String format = val;
+    format.replace(" ", "");
+    if(format == "False" || format == "false" || format == "FALSE")
+    {
+        #ifdef J54J6_LOGGING_H //use logging Libary if included
+            String message = "Return False - given: ";
+            message += format;
+            logger::SFLog(className, "returnAsBool", message.c_str());
+        #endif
+        return false;
+    }
+    else if(format == "True" || format == "true" || format == "TRUE")
+    {
+        #ifdef J54J6_LOGGING_H //use logging Libary if included
+            String message = "Return True - given: ";
+            message += format;
+            logger::SFLog(className, "returnAsBool", message.c_str());
+        #endif
+        return true;
+    }
+    else
+    {
+        #ifdef J54J6_LOGGING_H //use logging Libary if included
+            String message = "Return False - undefined value! - given: ";
+            message += format;
+            logger::SFLog(className, "returnAsBool", message.c_str(), 1);
+        #endif
+        return false;
+    }
+    
+    
 }
