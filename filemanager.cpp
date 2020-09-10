@@ -1117,11 +1117,18 @@ bool Filemanager::writeJsonFile(const char* Filename,  const char* jsonPattern[]
     if(!checkForInit())
     {
         #ifdef J54J6_LOGGING_H //use logging Libary if included
-            logger::SFLog(className, "getCreationTime", "Error Init. Check!", 2);
+            logger::SFLog(className, "writeJsonFile", "Error Init. Check!", 2);
         #endif
         return false;
     }
 
+    if(amountOfData == 0)
+    {
+        #ifdef J54J6_LOGGING_H //use logging Libary if included
+            logger::SFLog(className, "writeJsonFile", "no Data given (AmountData = 0) - SKIP", 1);
+        #endif
+        return true;
+    }
     const size_t capacity = JSON_OBJECT_SIZE(25) + 400;
     DynamicJsonDocument jsonDocument(capacity);
     String jsonOutput;
@@ -1248,7 +1255,7 @@ const char* Filemanager::readJsonFileValue(const char* Filename, const char* pat
         return {};
     }
 
-    File readFile = LittleFS.open(Filename,"r"); //Open File
+    File readFile = LittleFS.open(Filename, "r"); //Open File
 
     if(!readFile)
     { 
@@ -1258,8 +1265,8 @@ const char* Filemanager::readJsonFileValue(const char* Filename, const char* pat
         return {};
     }
    
-    String output = readFile.readString();
-    readFile.close();
+    String output = this->readFile(Filename);
+    
 
     DeserializationError error = deserializeJson(jsonDocument, output);
     if(error)
@@ -1272,6 +1279,7 @@ const char* Filemanager::readJsonFileValue(const char* Filename, const char* pat
         #endif
         return {};
     }
+    
     const char* returnVal = jsonDocument[pattern]; //pattern need quotes too! e.g pattern = "\"id\""
     #ifdef J54J6_LOGGING_H //use logging Libary if included
             String message = "Output String: ";
@@ -1310,6 +1318,13 @@ DynamicJsonDocument Filemanager::readJsonFile(const char* Filename)
     DeserializationError error = deserializeJson(jsonDocument, output);
     if(error)
     {
+        this->error = true;
+        #ifdef J54J6_LOGGING_H
+            logger logging;
+            String message = "Can't readout JsonDoc from File - Error: \n ";
+            message += error.c_str();
+            logging.SFLog(className, "readJsonFile", message.c_str(), 2);
+        #endif
         return jsonDocument;
     }
     return jsonDocument;
@@ -1471,4 +1486,145 @@ bool Filemanager::returnAsBool(const char* val)
     }
     
     
+}
+
+bool Filemanager::checkForKeyInJSONFile(const char* filename, const char* key)
+{
+    if(!fExist(filename))
+    {
+        #ifdef J54J6_LOGGING_H
+            logger logging;
+            logging.SFLog(className, "checkForKeyInJSONFile", "Can't check for Json Key - File doesn't exist!", 2);
+        #endif
+        return false;
+    }
+
+    const size_t capacity = JSON_OBJECT_SIZE(25) + 400;
+    DynamicJsonDocument cacheDocument(capacity);
+
+    cacheDocument = readJsonFile(filename);
+        
+    if(cacheDocument.containsKey(key))
+    {
+        #ifdef J54J6_LOGGING_H
+            logger logging;
+            String message = "Service \"";
+            message += key;
+            message += "\" exist! - return true";
+            logging.SFLog(className, "checkForKeyInJSONFile", message.c_str());
+        #endif
+        return true;
+    }
+    else
+    {
+        #ifdef J54J6_LOGGING_H
+            logger logging;
+            String message = "Can't find Service \"";
+            message += key;
+            message += "\" in serviceList - return false";
+            logging.SFLog(className, "checkForKeyInJSONFile", message.c_str());
+        #endif
+        return false;
+    }
+}
+
+
+bool Filemanager::appendJsonKey(const char* filename, const char* newKey, const char* newVal)
+{
+    begin();
+    if(fExist(filename))
+    {
+        if(checkForKeyInJSONFile(filename, newKey))
+        {
+            #ifdef J54J6_LOGGING_H
+                logger logging;
+                logging.SFLog(className, "appendJsonKey", "Key already exist - SKIP", 0);
+            #endif 
+            return true;
+        }
+
+        const size_t capacity = JSON_OBJECT_SIZE(25) + 400;
+        StaticJsonDocument<capacity> cacheDocument;
+
+        String data = readFile(filename);
+
+        //for debug
+        /*
+        Serial.println("--------------------------------");
+        Serial.println(data);
+        Serial.println("--------------------------------");
+        */
+
+
+        if(!data.isEmpty())
+        {
+            deserializeJson(cacheDocument, data);
+        }
+        cacheDocument[newKey] = newVal;
+
+        writeJsonFile(filename, cacheDocument);
+        if(checkForKeyInJSONFile(filename, newKey))
+        {
+            return true;
+        }
+        else
+        {
+            #ifdef J54J6_LOGGING_H
+                logger logging;
+                logging.SFLog(className, "appendJsonKey", "An Error occured while adding the Key please check!", 2);
+            #endif
+            return false;
+        }
+
+    }
+    else
+    {
+        #ifdef J54J6_LOGGING_H
+            logger logging;
+            logging.SFLog(className, "appendJsonKey", "Can't append Json Key! - File doesn't exist!", 1);
+        #endif
+        return false;
+    }
+}
+
+bool Filemanager::delJsonKeyFromFile(const char* filename, const char* key)
+{
+    if(fExist(filename))
+    {
+        #ifdef J54J6_LOGGING_H
+            logger logging;
+            logging.SFLog(className, "delJsonKeyFromFile", "Can't delete Key, filename doesn't exist!", 1);
+        #endif
+        return false;
+    }
+
+    if(!checkForKeyInJSONFile(filename, key))
+    {
+        #ifdef J54J6_LOGGING_H
+            logger logging;
+            logging.SFLog(className, "delJsonKeyFromFile", "Can't delete Key, serviceList doesn't contains the specified Key! - SKIP", 1);
+        #endif
+        return true;
+    }
+
+    const size_t capacity = JSON_OBJECT_SIZE(25) + 400;
+    DynamicJsonDocument cacheDocument(capacity);
+
+    cacheDocument = readJsonFile(filename);
+
+    cacheDocument.remove(key);
+
+    if(checkForKeyInJSONFile(filename, key))
+    {
+        #ifdef J54J6_LOGGING_H
+            logger logging;
+            logging.SFLog(className, "delJsonKeyFromFile", "An Error occured while deleting the Key - please check!", 2);
+        #endif
+        return false;
+    }
+    #ifdef J54J6_LOGGING_H
+        logger logging;
+        logging.SFLog(className, "delJsonKeyFromFile", "Key successfully deleted!");
+    #endif
+    return true;
 }
