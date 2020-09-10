@@ -1,7 +1,7 @@
 # ESP8266_LittleFSFileHandler
 A very Little Libary to create and use JSON Config(s)
 
-Ver. Beta - 0.2
+Ver. Beta - 0.3
 This is an Upgrade of B0.1 - Much more functionalities and auto Tested with 1.2M write / rewrite types - "auto syntax fix" not working perfectly but helps with "hard" mistakes like forget mounting or things like this.
 
 ConfigReader and Creator fixed - now both functions work without problems
