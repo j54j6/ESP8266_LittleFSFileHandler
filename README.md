@@ -17,8 +17,8 @@ Req.
  Auto generated instance of Filemanager is "FM" - you can redefine it in filemanager.h...
  
 
-Most functionalities i describe as comment in filemanager.h - and most of the functions are self-explaining
-If you need some help or want to give some feedback - open Issue or visit me on TS -> ts.microcont.de
+Most functionalities I describe as comment in filemanager.h - and most of the functions are self-explaining
+If you need some help or want to give some feedback - open an Issue
 
 
 
